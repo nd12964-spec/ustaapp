@@ -54,3 +54,41 @@ jobs:
           target_commitish: ${{ github.sha }}
           make_latest: true
           files: Usta/Usta.apk
+
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: Usta
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create web part
+        run: flutter create --platforms=web --org kg.usta --project-name usta .
+
+      - run: flutter pub get
+
+      - name: Build web
+        run: flutter build web --release --base-href /ustaapp/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: Usta/build/web
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
+      
