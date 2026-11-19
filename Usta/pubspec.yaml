@@ -1,0 +1,22 @@
+name: usta
+description: Usta — строительное приложение для Кыргызстана.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.0.10
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Onest
+      fonts:
+        - asset: assets/fonts/Onest-Variable.ttf
+    - family: Unbounded
+      fonts:
+        - asset: assets/fonts/Unbounded-Variable.ttf
