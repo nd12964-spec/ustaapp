@@ -23,6 +23,10 @@ class C {
   static const ink50 = Color(0x8013284D);
   static const ink38 = Color(0x6113284D);
   static const grid = Color(0x0B13284D);
+
+  /// Стекло: полупрозрачная белая заливка карточек и светлая рамка. Без размытия фона.
+  static const glass = Color(0xB8FFFFFF);
+  static const glassEdge = Color(0xE6FFFFFF);
 }
 
 /// Текстовый стиль. Шрифты переменные, поэтому толщина задаётся осью wght.
@@ -48,6 +52,21 @@ const List<BoxShadow> softShadow = [
   BoxShadow(color: Color(0x0F13284D), blurRadius: 2, offset: Offset(0, 1)),
   BoxShadow(color: Color(0x1413284D), blurRadius: 30, offset: Offset(0, 10)),
 ];
+
+/// Тень приподнятой карточки, пока её держат пальцем.
+const List<BoxShadow> liftShadow = [
+  BoxShadow(color: Color(0x1413284D), blurRadius: 4, offset: Offset(0, 2)),
+  BoxShadow(color: Color(0x2413284D), blurRadius: 36, offset: Offset(0, 14)),
+];
+
+/// Тонкая светлая рамка стеклянной карточки.
+const Border glassBorder = Border.fromBorderSide(BorderSide(color: C.glassEdge));
+
+/// Скругление карточек мастеров, материалов, техники и заказов.
+const double cardRadius = 22;
+
+/// Скругление карточки проекта.
+const double projectCardRadius = 24;
 
 ThemeData buildTheme() {
   final scheme = ColorScheme.fromSeed(
