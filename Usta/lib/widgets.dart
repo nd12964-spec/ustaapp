@@ -29,7 +29,8 @@ void showSoon(BuildContext context, String text) {
 }
 
 /// Нажимаемый блок со скруглением и эффектом нажатия.
-class Tap extends StatelessWidget {
+/// С `lift` блок слегка приподнимается, пока его держат (если анимации не отключены).
+class Tap extends StatefulWidget {
   const Tap({
     super.key,
     required this.child,
@@ -41,6 +42,7 @@ class Tap extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.minHeight = 0,
     this.semanticLabel,
+    this.lift = false,
   });
 
   final Widget child;
@@ -52,26 +54,54 @@ class Tap extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double minHeight;
   final String? semanticLabel;
+  final bool lift;
+
+  @override
+  State<Tap> createState() => _TapState();
+}
+
+class _TapState extends State<Tap> {
+  static const _liftDuration = Duration(milliseconds: 160);
+
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
-    final br = BorderRadius.circular(radius);
-    Widget result = Container(
-      decoration: BoxDecoration(color: color, borderRadius: br, border: border, boxShadow: shadow),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
-          borderRadius: br,
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: minHeight),
-            child: Padding(padding: padding, child: child),
-          ),
+    final br = BorderRadius.circular(widget.radius);
+    final lifted = widget.lift && _pressed && !MediaQuery.of(context).disableAnimations;
+    final decoration = BoxDecoration(
+      color: widget.color,
+      borderRadius: br,
+      border: widget.border,
+      boxShadow: lifted ? liftShadow : widget.shadow,
+    );
+    final content = Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: br,
+        onTap: widget.onTap,
+        onHighlightChanged: widget.lift ? (v) => setState(() => _pressed = v) : null,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: widget.minHeight),
+          child: Padding(padding: widget.padding, child: widget.child),
         ),
       ),
     );
-    if (semanticLabel != null) {
-      result = Semantics(button: true, label: semanticLabel, excludeSemantics: true, child: result);
+    Widget result = widget.lift
+        ? AnimatedScale(
+            scale: lifted ? 1.02 : 1,
+            duration: _liftDuration,
+            curve: Curves.easeOut,
+            child: AnimatedContainer(
+              duration: _liftDuration,
+              curve: Curves.easeOut,
+              decoration: decoration,
+              child: content,
+            ),
+          )
+        : Container(decoration: decoration, child: content);
+    if (widget.semanticLabel != null) {
+      result = Semantics(button: true, label: widget.semanticLabel, excludeSemantics: true, child: result);
     }
     return result;
   }
@@ -252,12 +282,14 @@ class MasterCard extends StatelessWidget {
     return SizedBox(
       width: 172,
       child: Tap(
-        color: C.white,
-        radius: 16,
-        border: Border.all(color: C.line),
+        color: C.glass,
+        radius: cardRadius,
+        border: glassBorder,
+        shadow: softShadow,
+        lift: true,
         onTap: () => showMasterSheet(context, m),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(cardRadius - 1),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -300,12 +332,14 @@ class MatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tap(
-      color: C.white,
-      radius: 16,
-      border: Border.all(color: C.line),
+      color: C.glass,
+      radius: cardRadius,
+      border: glassBorder,
+      shadow: softShadow,
+      lift: true,
       onTap: () => showSoon(context, 'Карточка товара появится в следующей версии'),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(cardRadius - 1),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -371,12 +405,14 @@ class EquipCard extends StatelessWidget {
     return SizedBox(
       width: 204,
       child: Tap(
-        color: C.white,
-        radius: 16,
-        border: Border.all(color: C.line),
+        color: C.glass,
+        radius: cardRadius,
+        border: glassBorder,
+        shadow: softShadow,
+        lift: true,
         onTap: () => showSoon(context, 'Бронирование техники появится в следующей версии'),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(cardRadius - 1),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -420,6 +456,7 @@ class Carousel extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 20),
+      clipBehavior: Clip.none,
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -503,9 +540,10 @@ class _OrderTileState extends State<OrderTile> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: C.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: C.line),
+        color: C.glass,
+        borderRadius: BorderRadius.circular(cardRadius),
+        border: glassBorder,
+        boxShadow: softShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -963,8 +1001,9 @@ class ProjectCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: C.white,
-        borderRadius: BorderRadius.circular(20),
+        color: C.glass,
+        borderRadius: BorderRadius.circular(projectCardRadius),
+        border: glassBorder,
         boxShadow: softShadow,
       ),
       child: Column(
@@ -1073,8 +1112,9 @@ class StartProjectCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: C.white,
-        borderRadius: BorderRadius.circular(20),
+        color: C.glass,
+        borderRadius: BorderRadius.circular(projectCardRadius),
+        border: glassBorder,
         boxShadow: softShadow,
       ),
       child: Column(
